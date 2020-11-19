@@ -34,19 +34,18 @@ public class client {
 	         	username = scanner.nextLine();
 	         	}
 
-		    	System.out.println("Hello, " + username);
-		        os.write(username.getBytes());
-		        count = count+1;
-		    	
-		    	
-		    		String line;
-					line = fromServer.readLine();
-					System.out.println("server: " + line);
-		    		message = scanner.nextLine();
-		    		os.write(message.getBytes());
-		       		count = count+1;
+		    	// System.out.println("Hello, " + username);
+		        os.write((username + "\r\n").getBytes());
+				os.flush();
 
-		       	
+				message = scanner.nextLine();
+				os.write(message.getBytes());
+				os.flush();
+
+				// String line;
+				// line = fromServer.readLine();
+				// System.out.println("server: " + line);
+		
 			}
 			
 

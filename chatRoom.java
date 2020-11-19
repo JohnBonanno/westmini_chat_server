@@ -8,7 +8,6 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.nio.charset.StandardCharsets;
 
 
 public class  chatRoom
@@ -50,33 +49,39 @@ class Handler
     /**
      * this method is invoked by a separate thread
      */
-    public void process(Socket client) throws java.io.IOException {
+    public void process(Socket client, HashMap<String,Socket> map) throws java.io.IOException {
         DataOutputStream toClient = null;
-        BufferedReader readFrmSvr = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-        int count = 0;
+        BufferedReader fromClient = null;
+        String userName = null;
+        String message = null;
         byte[] buffer = new byte[10000];
+        
 
-
-        try {
+        try { 
+            fromClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
             
             while (true) {
-                System.out.println("enter while loop");
+                //System.out.println("enter while loop");
+                userName = fromClient.readLine();
+                System.out.println(userName);
+                map.put(userName, client);
+                //System.out.println(userName + client);
+                System.out.println(map.get(userName));
+                System.out.println(map);
+                message = fromClient.readLine() + "\r\n";
 
-                readFrmSvr = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-                System.out.println(readFrmSvr.readLine());
-                // toClient.writeBytes(message);
-
+                System.out.println(message);
+                // BufferedOutputStream ppl = null;
+                // for (String user : map.keySet()){
+                //     ppl = new BufferedOutputStream(map.get(user).getOutputStream());
                     
-                try {
-                        Thread.sleep(5000);
-                }
-                catch (InterruptedException ie) { }
-
-                    count++;
-                }
+                //     ppl.write(message.getBytes());
+                //     System.out.println(user + ": " + message);
+                //     ppl.flush();
+                // }
+                
             }
+        }
         catch (IOException ioe) {
             System.err.println(ioe);
         }
@@ -90,15 +95,12 @@ class Handler
 
 class Connection implements Runnable
 {
-    int count = 0;
     private Socket client;
     private static Handler handler = new Handler();
-    
+    private HashMap<String,Socket> map = null;
     public Connection(Socket client,HashMap<String,Socket> map) {
-
         this.client = client;
-        map.put("clinet",client);
-        System.out.print(map);
+        this.map = map;
     }
 
     /**
@@ -106,7 +108,7 @@ class Connection implements Runnable
      */
     public void run() {
         try {
-            handler.process(client);
+            handler.process(client,map);
         }
         catch (java.io.IOException ioe) {
             System.err.println(ioe);
